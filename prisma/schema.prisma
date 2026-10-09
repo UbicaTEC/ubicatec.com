@@ -1,0 +1,161 @@
+// UbicaTec — Prisma schema
+// Data seeded from docs/research/ubicatec/extracted-app-data.json
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// One of the 42 annotated directory buildings on Campus Monterrey.
+model Building {
+  id          String  @id
+  name        String
+  mapLabel    String?
+  /// Short display code, e.g. "CTEC" (falls back to buildingCode(id)).
+  code        String?
+  /// academic | library | sports | dining | services
+  category    String
+  levels      Int     @default(1)
+  /// Floor area in m²
+  area        Float   @default(0)
+  isDirectory Boolean @default(false)
+  osmId       String?
+  /// JSON array of alias strings (used for slug/alias resolution)
+  aliases     String  @default("[]")
+  description String?
+  /// Anchor position inside the campus projection
+  posX        Float
+  posZ        Float
+  /// JSON array of {x,z} points relative to posX/posZ
+  footprint   String
+  /// JSON array of arrays of {x,z} (holes in the footprint)
+  holes       String?
+  /// JSON array of {footprint: [{x,z}]} extra parts
+  parts       String?
+  /// Label/pin offsets
+  pinX        Float?
+  pinZ        Float?
+  labelX      Float?
+  labelZ      Float?
+  /// Position inside the source building array (the directory list order).
+  order       Int     @default(0)
+
+  entrances Entrance[]
+  profile   BuildingProfile?
+  events    Event[]
+  posts     Post[]
+}
+
+/// Curated editorial detail shown in the building modal (source table `I`).
+model BuildingProfile {
+  buildingId  String    @id
+  building    Building  @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  /// Source slug key, e.g. "cetec", "aulas-i", "bibliotec"
+  slug        String    @unique
+  subtitle    String?
+  description String?
+  hours       String?
+  rooms       Int?
+  elevators   Int?
+  accessible  Boolean?
+  /// JSON array of strings
+  amenities   String?
+  /// JSON array of {label,name}
+  levels      String?
+  layoutNote  String?
+}
+
+model Entrance {
+  id         String   @id
+  buildingId String
+  building   Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  x          Float
+  z          Float
+}
+
+model Event {
+  slug          String    @id
+  title         String
+  description   String
+  /// ISO-8601 with offset, exactly as authored in the source
+  startsAt      String
+  endsAt        String?
+  durationMin   Int
+  organizer     String?
+  place         String?
+  /// JSON array of strings
+  tags          String    @default("[]")
+  /// Slug as authored ("cetec"), before alias resolution
+  buildingSlug  String?
+  buildingId    String?
+  building      Building? @relation(fields: [buildingId], references: [id])
+}
+
+model Post {
+  slug         String    @id
+  /// noticia | evento
+  type         String
+  title        String
+  summary      String
+  author       String
+  publishedAt  String
+  ago          String?
+  /// JSON array of strings
+  tags         String    @default("[]")
+  buildingSlug String?
+  buildingId   String?
+  building     Building? @relation(fields: [buildingId], references: [id])
+  coverUrl     String?
+  /// JSON array of content blocks ({kind, text, items, ...})
+  body         String?
+  createdAt    DateTime  @default(now())
+}
+
+/// Food zone ("playlist") grouping in UbicaTec Food.
+model FoodZone {
+  id        String      @id
+  name      String
+  detail    String
+  /// Tailwind-ish tone classes from the source
+  tone      String
+  rowTone   String
+  icon      String
+  order     Int         @default(0)
+  places    FoodPlace[]
+}
+
+model FoodPlace {
+  /// Composite key `${id}::${name}`
+  key           String    @id
+  /// Source place id, used to resolve the building ("Cafetería Centrales")
+  buildingQuery String
+  label         String
+  name          String
+  location      String?
+  playlist      String
+  description   String
+  /// JSON array of feature keys (food|coffee|study|collaborate|wellness)
+  features      String    @default("[]")
+  logo          String?
+  zone          FoodZone? @relation(fields: [playlist], references: [id])
+}
+
+model ChillPlace {
+  id            String  @id
+  label         String
+  description   String
+  features      String  @default("[]")
+  buildingQuery String
+}
+
+/// Key/value store for bulk JSON the map and shell need.
+model CampusAsset {
+  key   String @id
+  /// JSON payload
+  value String
+}

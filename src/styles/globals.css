@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ fonts */
+@font-face {
+  font-family: bigShoulders;
+  src: url("/fonts/BigShoulders.ttf") format("truetype");
+  font-display: swap;
+  font-weight: 100 900;
+}
+@font-face {
+  font-family: "bigShoulders Fallback";
+  src: local(Arial);
+  ascent-override: 183.72%;
+  descent-override: 39.99%;
+  line-gap-override: 0%;
+  size-adjust: 53.64%;
+}
+
+/* --------------------------------------------------------- design tokens */
+:root {
+  --sn-font-display: "bigShoulders", "bigShoulders Fallback";
+  --font-display: "bigShoulders", "bigShoulders Fallback";
+  --base: #fff;
+  --tinta: #000;
+  --azul-senal: #1c4e89;
+  --background: var(--base);
+  --foreground: var(--tinta);
+  --surface: var(--base);
+  --surface-inverse: var(--tinta);
+  --on-inverse: var(--base);
+  --primary: var(--azul-senal);
+  --on-primary: var(--base);
+  --border: var(--tinta);
+  --muted-foreground: var(--tinta);
+  color-scheme: light;
+}
+
+.dark {
+  --background: var(--tinta);
+  --foreground: var(--base);
+  --surface: var(--tinta);
+  --surface-inverse: var(--base);
+  --on-inverse: var(--tinta);
+  --primary: var(--azul-senal);
+  --on-primary: var(--base);
+  --border: var(--base);
+  --muted-foreground: var(--base);
+}
+
+@theme inline {
+  --font-sans: var(--sn-font-display), system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-display: var(--sn-font-display);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  --color-base: var(--base);
+  --color-tinta: var(--tinta);
+  --color-azul-senal: var(--azul-senal);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-on-inverse: var(--on-inverse);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-muted-foreground: var(--muted-foreground);
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    background-color: var(--base);
+    color: var(--tinta);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ------------------------------------------------------------- utilities */
+.uppercase-señal {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+@keyframes sn-fade-in {
+  0% {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sn-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes sn-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes sn-scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes sn-map-event-halo {
+  0% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+@keyframes sn-map-event-light {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.65);
+  }
+}
+@keyframes sn-map-event-dot {
+  0%,
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.55);
+    opacity: 0.6;
+  }
+}
+@keyframes sn-pin-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.75;
+  }
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.sn-anim-fade-in {
+  animation: 0.2s cubic-bezier(0.16, 1, 0.3, 1) both sn-fade-in;
+}
+.sn-anim-slide-up {
+  animation: 0.38s cubic-bezier(0.16, 1, 0.3, 1) both sn-slide-up;
+}
+.sn-anim-scale-in {
+  animation: 0.24s cubic-bezier(0.2, 0.7, 0.3, 1) both sn-scale-in;
+}
+.sn-anim-fade-up {
+  animation: 0.36s cubic-bezier(0.2, 0.7, 0.3, 1) both sn-fade-up;
+}
+
+.sn-map-event-beacon {
+  isolation: isolate;
+  position: relative;
+  overflow: visible;
+}
+.sn-map-event-beacon::before,
+.sn-map-event-beacon::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+}
+.sn-map-event-beacon::before {
+  z-index: -1;
+  background: #1c4e8917;
+  border: 1px solid #1c4e898c;
+  animation: 2.1s ease-in-out infinite sn-map-event-halo;
+  inset: -4px;
+}
+.sn-map-event-beacon::after {
+  z-index: -2;
+  border: 1px solid #1c4e8938;
+  animation: 2.1s ease-out infinite sn-map-event-light;
+  inset: -9px;
+}
+.sn-map-event-beacon-dot {
+  transform-origin: 50%;
+  animation: 1.35s ease-in-out infinite sn-map-event-dot;
+}
